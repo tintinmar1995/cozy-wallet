@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
 import Papa from 'papaparse'
+import Empty from 'cozy-ui/react/Empty'
+import Card from './Card'
 
 import { withClient } from 'cozy-client'
 
@@ -49,11 +51,30 @@ export class Cards extends Component {
   render() {
     const { data } = this.state
 
-    return (
-      <div>
-        <p>{data.length > 0 && JSON.stringify(data)}</p>
-      </div>
-    )
+    if (data.length > 0) {
+      var out = []
+      for (var i = 0; i < data.length; i++) {
+        out.push(<Card data={data[i]} />)
+      }
+      return <div>{out}</div>
+    } else {
+      return (
+        <div
+          style={{
+            position: 'relative',
+            transform: 'translateZ(0)',
+            height: '500px',
+            display: 'flex'
+          }}
+        >
+          <Empty
+            icon="cozy"
+            title="This list is empty"
+            text="Try adding some content to this list"
+          />
+        </div>
+      )
+    }
   }
 }
 
