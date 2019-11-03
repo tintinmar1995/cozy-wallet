@@ -2,11 +2,13 @@ import React, { Component } from 'react'
 import { Modal, ModalContent } from 'cozy-ui/react'
 import { Button } from 'cozy-ui/react/Button'
 import Avatar from 'cozy-ui/react/Avatar'
+import Barcode from 'react-barcode'
 
 export class Card extends Component {
   constructor(props, context) {
     super(props, context)
     this.state = { boolModal: false }
+    this.canvas = []
   }
 
   render() {
@@ -14,6 +16,10 @@ export class Card extends Component {
     const { boolModal } = this.state
 
     var out = []
+
+    if (!data.store) {
+      return null
+    }
 
     if (boolModal) {
       out.push(
@@ -25,8 +31,12 @@ export class Card extends Component {
             }}
           >
             <ModalContent>
-              <h2>{data.barcodetype}</h2>
-              <h3>{data.cardid}</h3>
+              <center>
+                <Barcode
+                  value={data.cardid}
+                  options={{ format: data.barcodetype }}
+                />
+              </center>
             </ModalContent>
           </Modal>
         </div>
