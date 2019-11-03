@@ -52,6 +52,18 @@ export class Cards extends Component {
     const { data } = this.state
 
     if (data.length > 0) {
+      // Sort card by STORE
+      function compare(a, b) {
+        if (a.store < b.store) {
+          return -1
+        }
+        if (a.store > b.store) {
+          return 1
+        }
+        return 0
+      }
+      data.sort(compare)
+
       var out = []
       for (var i = 0; i < data.length; i++) {
         out.push(<Card data={data[i]} />)
