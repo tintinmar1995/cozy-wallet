@@ -51,7 +51,7 @@ export class Cards extends Component {
 
     return (
       <div>
-        <p>{data.length > 0 && JSON.stringify(data[0])}</p>
+        <p>{data.length > 0 && JSON.stringify(data)}</p>
       </div>
     )
   }
