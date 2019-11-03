@@ -24,6 +24,11 @@
       "type": "io.cozy.apps",
       "verbs": ["GET"]
     },
+    "apps": {
+      "description": "Required by Cozy Wallet to read and write on Drive",
+      "type": "io.cozy.files",
+      "verbs": ["GET", "POST", "PATCH"]
+    },
     "mocks todos": {
       "description": "TO REMOVE: only used as demonstration about Cozy App data interactions",
       "type": "io.mocks.todos"

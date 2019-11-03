@@ -10,32 +10,28 @@ export const Sidebar = ({ t }) => (
       <ul className="c-nav">
         <li className="c-nav-item">
           <NavLink
-            to="/todos"
+            to="/wallet"
             className="c-nav-link"
             activeClassName="is-active"
           >
             <Icon className="c-nav-icon" icon={NavIcon} />
-            {t('Nav.todos')}
+            {t('Nav.wallet')}
+          </NavLink>
+        </li>
+        <li className="c-nav-item">
+          <NavLink to="/add" className="c-nav-link" activeClassName="is-active">
+            <Icon className="c-nav-icon" icon={NavIcon} />
+            {t('Nav.add_card')}
           </NavLink>
         </li>
         <li className="c-nav-item">
           <NavLink
-            to="/viewhello1"
+            to="/import-export"
             className="c-nav-link"
             activeClassName="is-active"
           >
             <Icon className="c-nav-icon" icon={NavIcon} />
-            {t('Nav.hello_nav_2')}
-          </NavLink>
-        </li>
-        <li className="c-nav-item">
-          <NavLink
-            to="/viewhello2"
-            className="c-nav-link"
-            activeClassName="is-active"
-          >
-            <Icon className="c-nav-icon" icon={NavIcon} />
-            {t('Nav.hello_nav_3')}
+            {t('Nav.import_export')}
           </NavLink>
         </li>
       </ul>

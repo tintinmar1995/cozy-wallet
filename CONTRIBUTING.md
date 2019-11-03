@@ -1,4 +1,4 @@
-# How to contribute to Cozy Wallet?
+# How to contribute to Cozy-DISPERS?
 
 Thank you for your interest in contributing to this Cozy application! There are many ways to contribute, and we appreciate all of them.
 
@@ -20,7 +20,7 @@ Opening an issue is as easy as following [this link][issues] and filling out the
 - What did you try, step by step?
 - What did you expect?
 - What did happen instead?
-- What is the version of the Cozy Wallet app?
+- What is the version of the Cozy-DISPERS app?
 
 
 ## Pull Requests
@@ -44,9 +44,9 @@ Pull requests are the primary mechanism we use to change Cozy. GitHub itself has
 Fork the project on GitHub and [check out your copy locally][forking].
 
 ```
-$ git clone github.com/tintinmar1995/cozy-wallet.git
-$ cd cozy-wallet
-$ git remote add fork git://github.com/yourusername/cozy-wallet.git
+$ git clone github.com/tintinmar1995/cozy-dispers-app.git
+$ cd cozy-dispers-app
+$ git remote add fork git://github.com/yourusername/cozy-dispers-app.git
 ```
 
 #### Step 2: Branch
@@ -66,7 +66,7 @@ Well, we think you know how to do that. Just be sure to follow the coding guidel
 Don't forget to add tests and be sure they are green:
 
 ```
-$ cd cozy-wallet
+$ cd cozy-dispers-app
 $ npm run test
 ```
 
@@ -89,7 +89,7 @@ $ git rebase origin/master my-branch
 $ git push -u fork my-branch
 ```
 
-Go to https://github.com/yourusername/cozy-wallet and select your branch. Click the 'Pull Request' button and fill out the form.
+Go to https://github.com/yourusername/cozy-dispers-app and select your branch. Click the 'Pull Request' button and fill out the form.
 
 Alternatively, you can use [hub] to open the pull request from your terminal:
 
@@ -107,7 +107,7 @@ Documentation improvements are very welcome. We try to keep a good documentation
 
 ## Translations
 
-The Cozy Wallet is translated on a platform called [Transifex][tx]. [This tutorial][tx-start] can help you to learn how to make your first steps here. If you have any question, don't hesitate to ask us!
+The Cozy-DISPERS is translated on a platform called [Transifex][tx]. [This tutorial][tx-start] can help you to learn how to make your first steps here. If you have any question, don't hesitate to ask us!
 
 
 ## Community
@@ -116,12 +116,12 @@ You can help us by making our community even more vibrant. For example, you can 
 
 
 
-[issues]: https://github.com/tintinmar1995/cozy-wallet/issues/new
+[issues]: https://github.com/tintinmar1995/cozy-dispers-app/issues/new
 [pr]: https://help.github.com/categories/collaborating-with-issues-and-pull-requests/
 [forking]: http://blog.campoy.cat/2014/03/github-and-go-forking-pull-requests-and.html
 [stdjs]: http://standardjs.com/
 [commitmsg]: http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
-[localization]: https://github.com/tintinmar1995/cozy-wallet/blob/master/README.md#localization
+[localization]: https://github.com/tintinmar1995/cozy-dispers-app/blob/master/README.md#localization
 [hub]: https://hub.github.com/
 [tx]: https://www.transifex.com/cozy/
 [tx-start]: http://docs.transifex.com/getting-started/translators/

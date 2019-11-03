@@ -5,7 +5,7 @@ import { Layout, Main, Content } from 'cozy-ui/react/Layout'
 import { Sprite as IconSprite } from 'cozy-ui/react/Icon'
 
 import Sidebar from './Sidebar'
-import Todos from './Todos'
+import Wallet from './Wallet'
 import Hello1 from './HelloViews/Hello1'
 import Hello2 from './HelloViews/Hello2'
 
@@ -16,11 +16,11 @@ export const App = () => (
       <Main>
         <Content className="app-content">
           <Switch>
-            <Route path="/todos" component={Todos} />
-            <Route path="/viewhello1" component={Hello1} />
-            <Route path="/viewhello2" component={Hello2} />
-            <Redirect from="/" to="/todos" />
-            <Redirect from="*" to="/todos" />
+            <Route path="/wallet" component={Wallet} />
+            <Route path="/add" component={Hello1} />
+            <Route path="/import-export" component={Hello2} />
+            <Redirect from="/" to="/wallet" />
+            <Redirect from="*" to="/wallet" />
           </Switch>
         </Content>
       </Main>

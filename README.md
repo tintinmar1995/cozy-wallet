@@ -5,20 +5,20 @@
 
 # Cozy Wallet
 
-L'application Cozy Wallet permet de partager et d'afficher les cartes de fidélité. Elle repose sur des bases de données sous format .csv, compatibles avec `Loyalty Card Locker`.
+L'application Cozy Wallet permet de partager et d'afficher les cartes de fidélité. Elle repose sur un base de données sous format .csv, compatible avec `Loyalty Card Locker`.
 
-## Usage 
+## Usage
 
-L'application permet de gérer les portes-feuilles, d'ajouter des cartes fidélités en entrant manuellement le code barre, d'éditer les cartes.
+L'application permet :
+- de visualiser les codes barres dans l'application
+- d'ajouter des cartes fidélités en entrant manuellement le code barre
+- d'éditer les cartes.
 
 ## Sauvegardes dans Cozy Drive
 
-La base de données de l'application est uniquement formée de fichiers présents dans Cozy Drive dans un dossier _Wallet_ (ou _Porte-feuille_). 
+La base de données de l'application est uniquement formée d'un fichier présent dans Cozy Drive dans un dossier _Wallet_ (ou _Porte-feuille_).
 
-Chaque fichier .csv du dossier comporte les cartes d'un même porte-feuille. Chaque fichier peut-être importé dans `Loyalty Card Locker`.
-
-L'unicité des porte-feuilles découle des propriétés des fichiers de Cozy Drive. 
-
+Le fichier .csv du dossier comporte les cartes d'un même porte-feuille. Il peut-être importé dans `Loyalty Card Locker`.
 
 ## Hack
 

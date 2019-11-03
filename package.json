@@ -1,5 +1,5 @@
 {
-  "name": "wallet",
+  "name": "dispers",
   "version": "0.1.0",
   "scripts": {
     "tx": "tx pull --all || true",
@@ -14,21 +14,21 @@
     "watch:browser": "cs watch --browser",
     "watch:mobile": "cs watch --mobile",
     "start": "cs start --hot --browser",
-    "deploy": "git-directory-deploy --directory build/ --branch ${DEPLOY_BRANCH:-build} --repo=${DEPLOY_REPOSITORY:-https://$GITHUB_TOKEN@github.com/tintinmar1995/cozy-wallet.git}",
+    "deploy": "git-directory-deploy --directory build/ --branch ${DEPLOY_BRANCH:-build} --repo=${DEPLOY_REPOSITORY:-https://$GITHUB_TOKEN@github.com/tintinmar1995/cozy-dispers-app.git}",
     "test": "cs test --verbose --coverage",
     "cozyPublish": "git fetch origin ${DEPLOY_BRANCH:-build}:${DEPLOY_BRANCH:-build} && cs publish --token $REGISTRY_TOKEN --build-commit $(git rev-parse ${DEPLOY_BRANCH:-build})"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tintinmar1995/cozy-wallet.git"
+    "url": "git+https://github.com/tintinmar1995/cozy-dispers-app.git"
   },
   "author": "",
   "contributors": [],
   "license": "AGPL-3.0",
   "bugs": {
-    "url": "https://github.com/tintinmar1995/cozy-wallet/issues"
+    "url": "https://github.com/tintinmar1995/cozy-dispers-app/issues"
   },
-  "homepage": "https://github.com/tintinmar1995/cozy-wallet#readme",
+  "homepage": "https://github.com/tintinmar1995/cozy-dispers-app#readme",
   "devDependencies": {
     "babel-preset-cozy-app": "1.5.2",
     "enzyme": "3.10.0",
@@ -43,13 +43,17 @@
     "stylint": "1.5.9"
   },
   "dependencies": {
+    "@material-ui/core": "^4.3.0",
+    "chart.js": "^2.8.0",
     "cozy-bar": "7.5.0",
     "cozy-client": "6.49.0",
-    "cozy-ui": "21.7.0",
+    "cozy-scripts": "2.0.2",
+    "cozy-ui": "^22.8.0",
     "eslint-config-cozy-app": "1.1.12",
+    "papaparse": "^5.1.0",
     "react": "16.8.6",
     "react-dom": "16.8.6",
-    "react-router-dom": "5.0.1",
-    "cozy-scripts": "2.0.2"
+    "react-http-request": "^2.0.0",
+    "react-router-dom": "5.0.1"
   }
 }
