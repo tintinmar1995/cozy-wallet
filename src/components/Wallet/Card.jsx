@@ -8,7 +8,6 @@ export class Card extends Component {
   constructor(props, context) {
     super(props, context)
     this.state = { boolModal: false }
-    this.canvas = []
   }
 
   render() {
@@ -34,7 +33,8 @@ export class Card extends Component {
               <center>
                 <Barcode
                   value={data.cardid}
-                  options={{ format: data.barcodetype }}
+                  height="100%"
+                  format={data.barcodetype.replace('_', '')}
                 />
               </center>
             </ModalContent>

@@ -3,7 +3,7 @@
   "slug": "wallet",
   "icon": "icon.svg",
   "categories": [],
-  "version": "0.1.0",
+  "version": "0.1.2",
   "licence": "AGPL-3.0",
   "editor": "",
   "source": "https://github.com/tintinmar1995/cozy-wallet.git@build",
@@ -27,7 +27,7 @@
     "apps": {
       "description": "Required by Cozy Wallet to read and write on Drive",
       "type": "io.cozy.files",
-      "verbs": ["GET", "POST", "PATCH"]
+      "verbs": ["GET", "PUT"]
     },
     "mocks todos": {
       "description": "TO REMOVE: only used as demonstration about Cozy App data interactions",

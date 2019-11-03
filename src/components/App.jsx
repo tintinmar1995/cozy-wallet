@@ -6,7 +6,7 @@ import { Sprite as IconSprite } from 'cozy-ui/react/Icon'
 
 import Sidebar from './Sidebar'
 import Wallet from './Wallet'
-import Hello1 from './HelloViews/Hello1'
+import NewCard from './NewCard'
 
 export const App = () => (
   <HashRouter>
@@ -16,7 +16,7 @@ export const App = () => (
         <Content className="app-content">
           <Switch>
             <Route path="/wallet" component={Wallet} />
-            <Route path="/add" component={Hello1} />
+            <Route path="/add" component={NewCard} />
             <Redirect from="/" to="/wallet" />
             <Redirect from="*" to="/wallet" />
           </Switch>
