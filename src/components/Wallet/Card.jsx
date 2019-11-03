@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Modal, ModalContent } from 'cozy-ui/react'
 import { Button } from 'cozy-ui/react/Button'
+import Papa from 'papaparse'
 import Avatar from 'cozy-ui/react/Avatar'
 import Barcode from 'react-barcode'
 
@@ -26,7 +27,7 @@ export class Card extends Component {
           <Modal
             title={data.store}
             secondaryAction={() => {
-              this.setState({ boolModal: false })
+              this.setState({ boolModal: false, cancelling: false })
             }}
           >
             <ModalContent>
@@ -37,6 +38,45 @@ export class Card extends Component {
                   format={data.barcodetype.replace('_', '')}
                 />
               </center>
+              <br />
+              <br />
+              <div>
+                <Button
+                  icon="trash"
+                  busy={this.state.cancelling}
+                  type="button"
+                  theme="danger"
+                  onClick={() => {
+                    this.setState({ cancelling: !this.state.cancelling })
+                  }}
+                  size="tiny"
+                  label="Delete"
+                />
+                {this.state.cancelling && (
+                  <Button
+                    type="button"
+                    theme="danger"
+                    size="tiny"
+                    label="Confirm"
+                    onClick={() => {
+                      this.setState({ boolModal: false })
+                      this.props.onClick(this.props.id)
+                    }}
+                  />
+                )}
+                {this.state.cancelling && (
+                  <Button
+                    icon="cross"
+                    type="button"
+                    theme="secondary"
+                    size="tiny"
+                    onClick={() => {
+                      this.setState({ cancelling: !this.state.cancelling })
+                    }}
+                    label="Cancel"
+                  />
+                )}
+              </div>
             </ModalContent>
           </Modal>
         </div>

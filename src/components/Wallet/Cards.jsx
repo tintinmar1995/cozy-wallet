@@ -66,7 +66,48 @@ export class Cards extends Component {
 
       var out = []
       for (var i = 0; i < data.length; i++) {
-        out.push(<Card data={data[i]} />)
+        out.push(
+          <Card
+            id={i}
+            data={data[i]}
+            onClick={async i => {
+              this.state.data.splice(i, 1)
+
+              var newFile = Papa.unparse(this.state.data)
+              const { client } = this.props
+
+              // Get file's id
+              const fileID = await client.stackClient
+                .fetchJSON(
+                  'GET',
+                  '/files/metadata?Path=/Wallet/LoyaltyCardKeychain.csv'
+                )
+                .then(response => {
+                  return response.data.id
+                })
+                .catch(error => {
+                  alert(error)
+                })
+
+              newFile = newFile
+                .split(',,,,,,\r\n')
+                .join('')
+                .split(',,,,,,')
+                .join('')
+
+              // Update the file in Cozy Drive
+              client.stackClient
+                .fetchJSON('PUT', '/files/' + fileID, newFile)
+                .catch(error => {
+                  alert(error)
+                })
+
+              this.setState({
+                boolModal: false
+              })
+            }}
+          />
+        )
       }
       return <div>{out}</div>
     } else {

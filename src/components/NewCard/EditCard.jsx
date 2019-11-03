@@ -26,7 +26,7 @@ export class EditCard extends Component {
     this.setState({ busy: true })
 
     // Create new file
-    const newFile = await client.stackClient
+    var newFile = await client.stackClient
       .fetchJSON(
         'GET',
         '/files/download?Path=/Wallet/LoyaltyCardKeychain.csv&Dl=1'
@@ -54,12 +54,15 @@ export class EditCard extends Component {
         alert(error)
       })
 
+    newFile = newFile
+      .split(',,,,,,\r\n')
+      .join('')
+      .split(',,,,,,')
+      .join('')
+
     // Update the file in Cozy Drive
-    client.stackClient
+    await client.stackClient
       .fetchJSON('PUT', '/files/' + fileID, newFile)
-      .then(response => {
-        return JSON.stringify(response.data.id)
-      })
       .catch(error => {
         alert(error)
       })
