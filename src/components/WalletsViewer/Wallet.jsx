@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import Papa from 'papaparse'
-import Empty from 'cozy-ui/react/Empty'
 import Card from './Card'
 import ExpansionPanel from '@material-ui/core/ExpansionPanel'
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
@@ -50,10 +49,7 @@ export class Wallet extends Component {
 
     // Get the cards
     await client.stackClient
-      .fetchJSON(
-        'GET',
-        '/files/download?Path=/Wallet/LoyaltyCardKeychain.csv&Dl=1'
-      )
+      .fetchJSON('GET', '/files/download/' + id)
       .then(async response => {
         try {
           this.setState({ csvFile: response })
@@ -102,7 +98,7 @@ export class Wallet extends Component {
             id={i}
             card={data[i]}
             onClick={async i => {
-              const { client } = this.props
+              const { client, id } = this.props
 
               // Deleting the card from the array of card
               this.state.data.splice(i, 1)
@@ -115,22 +111,9 @@ export class Wallet extends Component {
                 .split(',,,,,,')
                 .join('')
 
-              // Get previous CSV file's id
-              const fileID = await client.stackClient
-                .fetchJSON(
-                  'GET',
-                  '/files/metadata?Path=/Wallet/LoyaltyCardKeychain.csv'
-                )
-                .then(response => {
-                  return response.data.id
-                })
-                .catch(error => {
-                  alert(error)
-                })
-
               // Update the file in Cozy Drive
               client.stackClient
-                .fetchJSON('PUT', '/files/' + fileID, newFile)
+                .fetchJSON('PUT', '/files/' + id, newFile)
                 .catch(error => {
                   alert(error)
                 })
@@ -154,22 +137,7 @@ export class Wallet extends Component {
       )
     } else {
       // In case, there is no card in the wallet file
-      return (
-        <div
-          style={{
-            position: 'relative',
-            transform: 'translateZ(0)',
-            height: '500px',
-            display: 'flex'
-          }}
-        >
-          <Empty
-            icon="cozy"
-            title="This list is empty"
-            text="Try adding some content to this list"
-          />
-        </div>
-      )
+      return null
     }
   }
 }
