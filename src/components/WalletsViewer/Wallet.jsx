@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import Papa from 'papaparse'
 import Card from './Card'
+import Button from 'cozy-ui/transpiled/react/MuiCozyTheme/Buttons'
 import ExpansionPanel from '@material-ui/core/ExpansionPanel'
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails'
@@ -26,6 +27,7 @@ export class Wallet extends Component {
       boolLoading: true,
       csvFile: '',
       name: '',
+      isEmpty: false,
       data: []
     }
 
@@ -61,33 +63,20 @@ export class Wallet extends Component {
           alert(err)
         }
       })
-
-    /*
-      // Create dummy file
-      await client.stackClient
-        .fetchJSON(
-          'POST',
-          '/files/' + idFolder + '?Type=file&Name=LoyaltyCardKeychain.csv',
-          '_id,store,note,cardid,headercolor,headertextcolor,barcodetype\r\n1,Exemple,This is a note,2070253157477,-5414233,-1,EAN_13\r\n'
-        )
-        .then(response => {
-          return response.data.id
-        })
-    } else {
-      alert(error)
-    }
-    */
   }
 
   updateData = result => {
     var data = result.data
-    this.setState({ data: data })
+    this.setState({
+      data: data,
+      isEmpty: data.length == 0 || (data.length == 1 && !data[0].store)
+    })
   }
 
   render() {
-    const { data } = this.state
+    const { data, isEmpty } = this.state
 
-    if (data.length > 0) {
+    if (!isEmpty) {
       // Sort card by store
       data.sort(compare)
 
@@ -136,8 +125,31 @@ export class Wallet extends Component {
         </ExpansionPanel>
       )
     } else {
-      // In case, there is no card in the wallet file
-      return null
+      return (
+        <ExpansionPanel style={{ marginRight: '50px' }}>
+          <ExpansionPanelSummary>
+            {this.state.name.replace('.csv', '')}
+          </ExpansionPanelSummary>
+          <ExpansionPanelDetails>
+            <Button
+              variant="contained"
+              className="u-m-1"
+              icon="trash"
+              theme="danger"
+              onClick={() => {
+                const { client, id } = this.props
+                client.stackClient
+                  .fetchJSON('DELETE', '/files/' + id)
+                  .catch(error => {
+                    alert(error)
+                  })
+              }}
+            >
+              Delete
+            </Button>
+          </ExpansionPanelDetails>
+        </ExpansionPanel>
+      )
     }
   }
 }
