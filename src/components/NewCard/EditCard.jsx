@@ -5,7 +5,7 @@ import Label from 'cozy-ui/react/Label'
 import Input from 'cozy-ui/react/Input'
 import Empty from 'cozy-ui/react/Empty'
 import Modal from 'cozy-ui/react/Modal'
-import SelectBox from 'cozy-ui/transpiled/react/SelectBox'
+import SelectBox, { CheckboxOption } from 'cozy-ui/transpiled/react/SelectBox'
 
 import { withClient } from 'cozy-client'
 
@@ -17,8 +17,11 @@ export class EditCard extends Component {
       note: '',
       cardid: '',
       barcodetype: '',
-      busy: false
+      busy: false,
+      wallets: [],
+      selectedWallets: []
     }
+    this.loadWalletsNameAndId()
   }
 
   addCard = async () => {
@@ -27,53 +30,63 @@ export class EditCard extends Component {
     const templateNewLine =
       '[**ID**],[**STORE**],[**NOTE**],[**CARDID**],-416706,-1,[**TYPE**]\r\n'
     const { client } = this.props
+    var newFile = ''
+    var res = ''
 
     // Set the Save button as working
-    this.setState({ busy: true })
+    this.setState({
+      busy: true,
+      boolModal: true,
+      titleModal: 'Processing',
+      textModal: ''
+    })
 
-    // Create the body of the new file
-    // Get the old file, clean it and add the new line
-    var newFile = await client.stackClient
-      .fetchJSON(
-        'GET',
-        '/files/download?Path=/Wallet/LoyaltyCardKeychain.csv&Dl=1'
-      )
-      .then(response => {
-        var newLine = templateNewLine
-          .replace('[**ID**]', response.split('\n').length)
-          .replace('[**NOTE**]', this.state.note)
-          .replace('[**STORE**]', this.state.store)
-          .replace('[**CARDID**]', this.state.cardid)
-          .replace('[**TYPE**]', this.state.barcodetype)
-        return response + newLine
-      })
-      .catch(error => {
-        alert(error)
-      })
+    for (var index = 0; index < this.state.selectedWallets.length; index++) {
+      // Create the body of the new file
+      // Get the old file, clean it and add the new line
+      newFile = await client.stackClient
+        .fetchJSON(
+          'GET',
+          '/files/download/' + this.state.selectedWallets[index].value
+        )
+        .then(response => {
+          var newLine = templateNewLine
+            .replace('[**ID**]', response.split('\n').length)
+            .replace('[**NOTE**]', this.state.note)
+            .replace('[**STORE**]', this.state.store)
+            .replace('[**CARDID**]', this.state.cardid)
+            .replace('[**TYPE**]', this.state.barcodetype)
+          return response + newLine
+        })
+        .catch(error => {
+          alert(error)
+        })
 
-    // Clean the file to prevent from empty lines
-    newFile = newFile
-      .split(',,,,,,\r\n')
-      .join('')
-      .split(',,,,,,')
-      .join('')
+      // Clean the file to prevent from empty lines
+      newFile = newFile
+        .split(',,,,,,\r\n')
+        .join('')
+        .split(',,,,,,')
+        .join('')
 
-    // Get file's id
-    const fileID = await client.stackClient
-      .fetchJSON('GET', '/files/metadata?Path=/Wallet/LoyaltyCardKeychain.csv')
-      .then(response => {
-        return response.data.id
-      })
-      .catch(error => {
-        alert(error)
-      })
+      // Update the file in Cozy's VFS
+      res = await client.stackClient
+        .fetchJSON(
+          'PUT',
+          '/files/' + this.state.selectedWallets[index].value,
+          newFile
+        )
+        .then(response => {
+          return response
+        })
+        .catch(error => {
+          alert(error)
+        })
 
-    // Update the file in Cozy's VFS
-    await client.stackClient
-      .fetchJSON('PUT', '/files/' + fileID, newFile)
-      .catch(error => {
-        alert(error)
+      this.setState({
+        textModal: index + 1 + '/' + this.state.selectedWallets.length
       })
+    }
 
     this.setState({
       store: '',
@@ -81,8 +94,52 @@ export class EditCard extends Component {
       cardid: '',
       barcodetype: '',
       busy: false,
-      boolModal: true
+      selectedWallets: [],
+      boolModal: true,
+      titleModal: 'Success',
+      textModal:
+        'Your new card has been added to your wallet. Go back to your wallet to see it.'
     })
+  }
+
+  loadWalletsNameAndId = async () => {
+    var ids = {}
+    const { client } = this.props
+
+    // Get the id of the folder "My Wallets", and the content's id
+    try {
+      ids = await client.stackClient
+        .fetchJSON('GET', '/files/metadata?Path=/My%20Wallets')
+        .then(response => {
+          return {
+            dirId: response.data.id,
+            filesId: response.data.relationships.contents.data
+          }
+        })
+    } catch (e) {
+      // Create the folder "My Wallets" and get its id
+      ids = await client.stackClient
+        .fetchJSON('POST', '/files/?Type=directory&Name=My%20Wallets')
+        .then(response => {
+          return { dirId: response.data.id, filesId: [] }
+        })
+        .catch(error => {
+          alert(error)
+        })
+    }
+
+    // Get the name of every files
+    for (var index = 0; index < ids.filesId.length; index++) {
+      // Get Wallet's name
+      ids.filesId[index].value = ids.filesId[index].id
+      ids.filesId[index].label = await client.stackClient
+        .fetchJSON('GET', '/files/' + ids.filesId[index].id)
+        .then(response => {
+          return response.data.attributes.name.replace('.csv', '')
+        })
+    }
+
+    this.setState({ wallets: ids.filesId })
   }
 
   render() {
@@ -186,6 +243,20 @@ export class EditCard extends Component {
             ]}
           />
         </div>
+        <div style={{ background: 'white' }}>
+          <Label htmlFor="wallet">Save in wallets</Label>
+          <SelectBox
+            id="wallet"
+            isMulti
+            onChange={event => {
+              this.setState({ selectedWallets: event })
+            }}
+            components={{
+              Option: CheckboxOption
+            }}
+            options={this.state.wallets}
+          />
+        </div>
         <br />
         <Barcode
           ref={this.Barcode}
@@ -194,12 +265,12 @@ export class EditCard extends Component {
         />
         {this.state.boolModal && (
           <Modal
-            title="Card added"
+            title="Adding card"
             description={
               <Empty
                 icon="cozy"
-                title="Success"
-                text="Your new card has been added to your wallet. Go back to your wallet to see it."
+                title={this.state.titleModal}
+                text={this.state.textModal}
               />
             }
             dismissAction={() => this.setState({ boolModal: false })}
