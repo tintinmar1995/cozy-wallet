@@ -2,6 +2,9 @@ import React, { Component } from 'react'
 import Papa from 'papaparse'
 import Empty from 'cozy-ui/react/Empty'
 import Card from './Card'
+import ExpansionPanel from '@material-ui/core/ExpansionPanel'
+import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
+import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails'
 
 import { withClient } from 'cozy-client'
 
@@ -16,13 +19,14 @@ function compare(a, b) {
   return 0
 }
 
-export class Cards extends Component {
+export class Wallet extends Component {
   constructor(props, context) {
     super(props, context)
     // initial component state
     this.state = {
       boolLoading: true,
       csvFile: '',
+      name: '',
       data: []
     }
 
@@ -31,71 +35,52 @@ export class Cards extends Component {
 
   // load cards from csv file
   loadCards = async () => {
-    const { client } = this.props
-    var idFolder = ''
+    const { client, id } = this.props
 
-    // First, we try to load the file at its default location
-    // If the file is not found, it is going to be created with an example
-    // To create the file, the following cases are dealt with
-    // - the folder is existing but not the file
-    // - both the folder and the file are unexistant
-    // From 1 to 4 call to VFS are made
-    try {
+    // Get Wallet's name
+    await client.stackClient
+      .fetchJSON('GET', '/files/' + id)
+      .then(async response => {
+        try {
+          this.setState({ name: response.data.attributes.name })
+        } catch (err) {
+          alert(err)
+        }
+      })
+
+    // Get the cards
+    await client.stackClient
+      .fetchJSON(
+        'GET',
+        '/files/download?Path=/Wallet/LoyaltyCardKeychain.csv&Dl=1'
+      )
+      .then(async response => {
+        try {
+          this.setState({ csvFile: response })
+          Papa.parse(response, {
+            complete: this.updateData,
+            header: true
+          })
+        } catch (err) {
+          alert(err)
+        }
+      })
+
+    /*
+      // Create dummy file
       await client.stackClient
         .fetchJSON(
-          'GET',
-          '/files/download?Path=/Wallet/LoyaltyCardKeychain.csv&Dl=1'
+          'POST',
+          '/files/' + idFolder + '?Type=file&Name=LoyaltyCardKeychain.csv',
+          '_id,store,note,cardid,headercolor,headertextcolor,barcodetype\r\n1,Exemple,This is a note,2070253157477,-5414233,-1,EAN_13\r\n'
         )
-        .then(async response => {
-          try {
-            this.setState({ csvFile: response })
-            Papa.parse(response, {
-              complete: this.updateData,
-              header: true
-            })
-          } catch (err) {
-            alert(err)
-          }
+        .then(response => {
+          return response.data.id
         })
-    } catch (error) {
-      if (error.message.includes('file does not exist')) {
-        try {
-          // Create the repository Wallet and get Folder's id
-          idFolder = await client.stackClient
-            .fetchJSON('POST', '/files/?Type=directory&Name=Wallet')
-            .then(response => {
-              return response.data.id
-            })
-        } catch (error) {
-          // Catch error if folder already exist and get Folder's id
-          if (error.message.includes('Wallet: file exists')) {
-            idFolder = await client.stackClient
-              .fetchJSON('GET', '/files/metadata?Path=/Wallet')
-              .then(response => {
-                return response.data.id
-              })
-              .catch(error => {
-                alert(error)
-              })
-          } else {
-            alert(error)
-          }
-        }
-
-        // Create dummy file
-        await client.stackClient
-          .fetchJSON(
-            'POST',
-            '/files/' + idFolder + '?Type=file&Name=LoyaltyCardKeychain.csv',
-            '_id,store,note,cardid,headercolor,headertextcolor,barcodetype\r\n1,Exemple,This is a note,2070253157477,-5414233,-1,EAN_13\r\n'
-          )
-          .then(response => {
-            return response.data.id
-          })
-      } else {
-        alert(error)
-      }
+    } else {
+      alert(error)
     }
+    */
   }
 
   updateData = result => {
@@ -157,7 +142,16 @@ export class Cards extends Component {
           />
         )
       }
-      return <div>{out}</div>
+      return (
+        <ExpansionPanel style={{ marginRight: '50px' }}>
+          <ExpansionPanelSummary>
+            {this.state.name.replace('.csv', '')}
+          </ExpansionPanelSummary>
+          <ExpansionPanelDetails>
+            <div>{out}</div>
+          </ExpansionPanelDetails>
+        </ExpansionPanel>
+      )
     } else {
       // In case, there is no card in the wallet file
       return (
@@ -180,4 +174,4 @@ export class Cards extends Component {
   }
 }
 
-export default withClient(Cards)
+export default withClient(Wallet)
