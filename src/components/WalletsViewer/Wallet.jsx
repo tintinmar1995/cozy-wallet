@@ -101,8 +101,11 @@ export class Wallet extends Component {
                 .join('')
 
               // Update the file in Cozy Drive
-              client.stackClient
+              const res = await client.stackClient
                 .fetchJSON('PUT', '/files/' + id, newFile)
+                .then(response => {
+                  return response
+                })
                 .catch(error => {
                   alert(error)
                 })
