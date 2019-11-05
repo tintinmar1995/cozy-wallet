@@ -111,7 +111,8 @@ export class Wallet extends Component {
                 })
 
               this.setState({
-                boolModal: false
+                boolModal: false,
+                res: res
               })
             }}
           />

@@ -98,7 +98,8 @@ export class EditCard extends Component {
       boolModal: true,
       titleModal: 'Success',
       textModal:
-        'Your new card has been added to your wallet. Go back to your wallet to see it.'
+        'Your new card has been added to your wallet. Go back to your wallet to see it.',
+      response: res
     })
   }
 

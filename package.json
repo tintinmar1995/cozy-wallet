@@ -1,5 +1,5 @@
 {
-  "name": "dispers",
+  "name": "wallet",
   "version": "0.1.0",
   "scripts": {
     "tx": "tx pull --all || true",
@@ -14,21 +14,21 @@
     "watch:browser": "cs watch --browser",
     "watch:mobile": "cs watch --mobile",
     "start": "cs start --hot --browser",
-    "deploy": "git-directory-deploy --directory build/ --branch ${DEPLOY_BRANCH:-build} --repo=${DEPLOY_REPOSITORY:-https://$GITHUB_TOKEN@github.com/tintinmar1995/cozy-dispers-app.git}",
+    "deploy": "git-directory-deploy --directory build/ --branch ${DEPLOY_BRANCH:-build} --repo=${DEPLOY_REPOSITORY:-https://$GITHUB_TOKEN@github.com/tintinmar1995/cozy-wallet.git}",
     "test": "cs test --verbose --coverage",
     "cozyPublish": "git fetch origin ${DEPLOY_BRANCH:-build}:${DEPLOY_BRANCH:-build} && cs publish --token $REGISTRY_TOKEN --build-commit $(git rev-parse ${DEPLOY_BRANCH:-build})"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tintinmar1995/cozy-dispers-app.git"
+    "url": "git+https://github.com/tintinmar1995/cozy-wallet.git"
   },
   "author": "",
   "contributors": [],
   "license": "AGPL-3.0",
   "bugs": {
-    "url": "https://github.com/tintinmar1995/cozy-dispers-app/issues"
+    "url": "https://github.com/tintinmar1995/cozy-wallet/issues"
   },
-  "homepage": "https://github.com/tintinmar1995/cozy-dispers-app#readme",
+  "homepage": "https://github.com/tintinmar1995/cozy-wallet#readme",
   "devDependencies": {
     "babel-preset-cozy-app": "1.5.2",
     "enzyme": "3.10.0",
