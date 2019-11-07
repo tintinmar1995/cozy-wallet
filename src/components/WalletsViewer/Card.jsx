@@ -86,6 +86,8 @@ export class Card extends Component {
     }
 
     // TODO: Use CompositeRow from cozy-ui
+    // TODO: Put Edit option and Delete in Dots menu at the left of the row
+    // TODO: Edit option create a form Composite button and replace Dots by Save
     // In the main tab, cards are shown as an Avatar and a button to open a modal
     out.push(
       <div style={{ margin: '10px', display: 'flex', flexDirection: 'row' }}>
