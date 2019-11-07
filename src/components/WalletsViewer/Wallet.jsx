@@ -91,6 +91,10 @@ export class Wallet extends Component {
 
               // Deleting the card from the array of card
               this.state.data.splice(i, 1)
+              this.setState({
+                isEmpty:
+                  data.length == 0 || (data.length == 1 && !data[0].store)
+              })
               // Converting the array to a CSV file
               var newFile = Papa.unparse(this.state.data)
               // Clean card and prevent from empty lines
