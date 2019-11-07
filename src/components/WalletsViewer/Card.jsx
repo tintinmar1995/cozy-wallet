@@ -3,6 +3,7 @@ import { Modal, ModalContent } from 'cozy-ui/react'
 import { Button } from 'cozy-ui/react/Button'
 import Avatar from 'cozy-ui/react/Avatar'
 import Barcode from 'react-barcode'
+import KonnectorChecker from './KonnectorChecker'
 
 export class Card extends Component {
   constructor(props, context) {
@@ -84,9 +85,10 @@ export class Card extends Component {
       )
     }
 
-    // In the main tab, cards are shown as an Avator and a button to open a modal
+    // TODO: Use CompositeRow from cozy-ui
+    // In the main tab, cards are shown as an Avatar and a button to open a modal
     out.push(
-      <div style={{ margin: '10px' }}>
+      <div style={{ margin: '10px', display: 'flex', flexDirection: 'row' }}>
         <Avatar
           text={(str => {
             if (str) {
@@ -102,6 +104,7 @@ export class Card extends Component {
           theme="ghost"
           extension="narrow"
         />
+        <KonnectorChecker brand={card.store} />
       </div>
     )
     return out
