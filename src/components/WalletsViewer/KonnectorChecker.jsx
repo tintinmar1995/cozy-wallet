@@ -2,6 +2,12 @@ import React, { Component } from 'react'
 import Chip from 'cozy-ui/react/Chip'
 import Icon from 'cozy-ui/react/Icon'
 
+import { minDistToLabel } from './levenshteinDistance.js'
+import {
+  availableConnector,
+  installedConnector
+} from 'assets/DummyConnector.jsx'
+
 export class KonnectorChecker extends Component {
   constructor(props, context) {
     super(props, context)
@@ -9,10 +15,36 @@ export class KonnectorChecker extends Component {
   }
 
   render() {
-    const matchingConnector = true
-    const connectorInstalled = false
+    var matchingConnector = null
+    var isConnectorInstalled = false
+    var label = this.props.brand
+    var connector = []
 
-    if (matchingConnector && !connectorInstalled) {
+    label = label.toLowerCase()
+
+    // For each connector available
+    var kntr = 0
+    while (!matchingConnector && kntr < availableConnector.length) {
+      connector = availableConnector[kntr].split(' ')
+
+      // For each word in connector
+      var iWordKntr = 0
+      while (!matchingConnector && iWordKntr < connector.length) {
+        const minDist =
+          minDistToLabel(connector[iWordKntr], label) /
+          connector[iWordKntr].length
+        if (minDist <= 0.2) {
+          matchingConnector = availableConnector[kntr]
+        }
+        iWordKntr++
+      }
+
+      kntr++
+    }
+
+    isConnectorInstalled = installedConnector.includes(matchingConnector)
+
+    if (matchingConnector && !isConnectorInstalled) {
       return (
         <div>
           <Chip>
@@ -21,7 +53,7 @@ export class KonnectorChecker extends Component {
           </Chip>
         </div>
       )
-    } else if (matchingConnector && connectorInstalled) {
+    } else if (matchingConnector && isConnectorInstalled) {
       return (
         <div>
           <Chip.Round>
