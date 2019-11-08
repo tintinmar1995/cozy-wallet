@@ -3,48 +3,77 @@ import Chip from 'cozy-ui/react/Chip'
 import Icon from 'cozy-ui/react/Icon'
 
 import { minDistToLabel } from './levenshteinDistance.js'
-import {
-  availableConnector,
-  installedConnector
-} from 'assets/DummyConnector.jsx'
 
 export class KonnectorChecker extends Component {
   constructor(props, context) {
     super(props, context)
-    this.state = {}
+    this.state = {
+      matchingConnector: [],
+      isConnectorInstalled: false
+    }
+  }
+
+  checkForConnector = async () => {
+    const { availableConnectors, installedConnectors } = this.props
+    const label = this.props.brand.toLowerCase()
+    var connector = []
+    var matchingConnector = []
+    var isConnectorInstalled = false
+
+    if (availableConnectors.length != 0) {
+      // For each connector available
+      var kntr = 0
+      while (kntr < availableConnectors.length) {
+        if (availableConnectors[kntr].name) {
+          connector = availableConnectors[kntr].name.label.split(' ')
+        } else {
+          connector = availableConnectors[kntr].slug.label.split(' ')
+        }
+
+        // For each word in connector
+        var iWordKntr = 0
+        while (iWordKntr < connector.length) {
+          const minDist =
+            minDistToLabel(connector[iWordKntr], label) /
+            connector[iWordKntr].length
+          if (minDist <= 0.3) {
+            matchingConnector.push({ label: connector.join(' ') })
+          }
+          iWordKntr++
+        }
+
+        kntr++
+      }
+    }
+
+    // For each connector that match, check if installed
+    // TODO: Adapt this part to the real response
+    if (installedConnectors.length != 0) {
+      for (var i = 0; i < matchingConnector.length; i) {
+        isConnectorInstalled = installedConnectors.includes(
+          matchingConnector[i]
+        )
+      }
+    }
+
+    // Prevent from infinite loop
+    if (
+      matchingConnector != this.state.matchingConnector ||
+      isConnectorInstalled != this.state.isConnectorInstalled
+    ) {
+      this.setState({
+        matchingConnector: matchingConnector,
+        isConnectorInstalled: isConnectorInstalled
+      })
+    }
   }
 
   render() {
-    var matchingConnector = null
-    var isConnectorInstalled = false
-    var label = this.props.brand
-    var connector = []
+    const { matchingConnector, isConnectorInstalled } = this.state
 
-    label = label.toLowerCase()
+    this.checkForConnector()
 
-    // For each connector available
-    var kntr = 0
-    while (!matchingConnector && kntr < availableConnector.length) {
-      connector = availableConnector[kntr].label.split(' ')
-
-      // For each word in connector
-      var iWordKntr = 0
-      while (!matchingConnector && iWordKntr < connector.length) {
-        const minDist =
-          minDistToLabel(connector[iWordKntr], label) /
-          connector[iWordKntr].length
-        if (minDist <= 0.2) {
-          matchingConnector = availableConnector[kntr].label
-        }
-        iWordKntr++
-      }
-
-      kntr++
-    }
-
-    isConnectorInstalled = installedConnector.includes(matchingConnector)
-
-    if (matchingConnector && !isConnectorInstalled) {
+    if (matchingConnector.length != 0 && !isConnectorInstalled) {
       return (
         <div>
           <Chip>
@@ -53,7 +82,7 @@ export class KonnectorChecker extends Component {
           </Chip>
         </div>
       )
-    } else if (matchingConnector && isConnectorInstalled) {
+    } else if (matchingConnector.length != 0 && isConnectorInstalled) {
       return (
         <div>
           <Chip.Round>

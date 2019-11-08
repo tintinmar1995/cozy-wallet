@@ -106,7 +106,11 @@ export class Card extends Component {
           theme="ghost"
           extension="narrow"
         />
-        <KonnectorChecker brand={card.store} />
+        <KonnectorChecker
+          brand={card.store}
+          availableConnectors={this.props.availableConnectors}
+          installedConnectors={this.props.installedConnectors}
+        />
       </div>
     )
     return out

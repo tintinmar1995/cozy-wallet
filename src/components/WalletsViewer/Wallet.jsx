@@ -119,6 +119,8 @@ export class Wallet extends Component {
                 res: res
               })
             }}
+            availableConnectors={this.props.availableConnectors}
+            installedConnectors={this.props.installedConnectors}
           />
         )
       }

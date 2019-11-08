@@ -14,7 +14,9 @@ export class MyWallets extends Component {
       dirId: '',
       filesId: [],
       creatingWallet: false,
-      newWalletName: ''
+      newWalletName: '',
+      availableConnectors: [],
+      installedConnectors: []
     }
   }
 
@@ -45,6 +47,50 @@ export class MyWallets extends Component {
     }
 
     this.setState({ dirId: ids.dirId, filesId: ids.filesId })
+  }
+
+  loadConnectors = async () => {
+    const { client } = this.props
+
+    // get connectors
+
+    const availableConnectors = await client.stackClient
+      .fetchJSON('GET', '/registry?filter[type]=konnector')
+      .then(response => {
+        var availableConnectors = []
+        for (var i = 0; i < response.data.length; i++) {
+          try {
+            availableConnectors.push({
+              name: {
+                label: response.data[i].latest_version.manifest.name,
+                value: response.data[i].latest_version.manifest.name
+              },
+              slug: {
+                label: response.data[i].slug,
+                value: response.data[i].slug
+              }
+            })
+          } catch (e) {
+            console.log(JSON.stringify(response.data[i]))
+          }
+        }
+        return availableConnectors
+      })
+
+    // get installed connectors
+    const installedConnectors = await client.stackClient
+      .fetchJSON('GET', '/konnectors/')
+      .then(response => {
+        return response.data
+      })
+      .catch(error => {
+        alert(error)
+      })
+
+    this.setState({
+      availableConnectors: availableConnectors,
+      installedConnectors: installedConnectors
+    })
   }
 
   newWallet = async () => {
@@ -136,7 +182,11 @@ export class MyWallets extends Component {
     for (var index = 0; index < this.state.filesId.length; index++) {
       out.push(
         <MuiCozyTheme>
-          <Wallet id={this.state.filesId[index].id} />
+          <Wallet
+            id={this.state.filesId[index].id}
+            availableConnectors={this.state.availableConnectors}
+            installedConnectors={this.state.installedConnectors}
+          />
         </MuiCozyTheme>
       )
     }
@@ -165,6 +215,7 @@ export class MyWallets extends Component {
 
   componentDidMount() {
     this.loadWalletsId()
+    this.loadConnectors()
   }
 }
 
