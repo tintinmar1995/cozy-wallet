@@ -25,7 +25,7 @@ export class KonnectorChecker extends Component {
     // For each connector available
     var kntr = 0
     while (!matchingConnector && kntr < availableConnector.length) {
-      connector = availableConnector[kntr].split(' ')
+      connector = availableConnector[kntr].label.split(' ')
 
       // For each word in connector
       var iWordKntr = 0
@@ -34,7 +34,7 @@ export class KonnectorChecker extends Component {
           minDistToLabel(connector[iWordKntr], label) /
           connector[iWordKntr].length
         if (minDist <= 0.2) {
-          matchingConnector = availableConnector[kntr]
+          matchingConnector = availableConnector[kntr].label
         }
         iWordKntr++
       }
