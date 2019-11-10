@@ -20,12 +20,12 @@ function compare(a, b) {
 export class Wallet extends Component {
   constructor(props, context) {
     super(props, context)
-    // initial component state
+
     this.state = {
       csvFile: '',
-      name: '',
       isLoading: true,
       isEmpty: false,
+      disabled: this.props.disabled,
       data: []
     }
 
@@ -61,10 +61,17 @@ export class Wallet extends Component {
     })
   }
 
+  componentWillReceiveProps(nextProps) {
+    // You don't have to do this check first, but it can help prevent an unneeded render
+    if (nextProps.disabled !== this.state.disabled) {
+      this.setState({ disabled: nextProps.disabled })
+    }
+  }
+
   render() {
     const { data, isEmpty } = this.state
 
-    if (!this.props.name || this.props.name == '') {
+    if (!this.props.name || this.props.name == '' || this.state.disabled) {
       return null
     } else if (this.state.isLoading) {
       return (

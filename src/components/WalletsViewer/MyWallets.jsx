@@ -118,38 +118,6 @@ export class MyWallets extends Component {
     })
   }
 
-  newWallet = async () => {
-    const { client } = this.props
-    const { filesId } = this.state
-
-    // Create dummy file
-    const response = await client.stackClient
-      .fetchJSON(
-        'POST',
-        '/files/' +
-          this.state.dirId +
-          '?Type=file&Name=' +
-          this.state.newWalletName +
-          '.csv',
-        '_id,store,note,cardid,headercolor,headertextcolor,barcodetype\r\n1,Exemple,This is a note,2070253157477,-5414233,-1,EAN_13\r\n'
-      )
-      .catch(error => {
-        alert(error)
-      })
-
-    filesId.push({
-      type: 'io.cozy.files',
-      id: response.data.id,
-      fake: 'news'
-    })
-
-    this.setState({
-      creatingWallet: false,
-      filesId: filesId,
-      newWalletName: ''
-    })
-  }
-
   render() {
     var out = []
 
@@ -204,14 +172,23 @@ export class MyWallets extends Component {
         </div>
       )
     } else {
-      out.push(
-        <Wallet
-          id={this.state.selectedWallet.value}
-          name={this.state.selectedWallet.label}
-          availableConnectors={this.state.availableConnectors}
-          installedConnectors={this.state.installedConnectors}
-        />
-      )
+      for (
+        var idxWallet = 0;
+        idxWallet < this.state.wallets.length;
+        idxWallet++
+      ) {
+        out.push(
+          <Wallet
+            disabled={
+              this.state.wallets[idxWallet] != this.state.selectedWallet
+            }
+            id={this.state.wallets[idxWallet].value}
+            name={this.state.wallets[idxWallet].label}
+            availableConnectors={this.state.availableConnectors}
+            installedConnectors={this.state.installedConnectors}
+          />
+        )
+      }
     }
 
     return <div>{out}</div>
