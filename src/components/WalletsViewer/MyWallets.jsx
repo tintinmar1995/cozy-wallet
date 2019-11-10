@@ -186,6 +186,16 @@ export class MyWallets extends Component {
             name={this.state.wallets[idxWallet].label}
             availableConnectors={this.state.availableConnectors}
             installedConnectors={this.state.installedConnectors}
+            onDelete={() => {
+              var { wallets } = this.state
+              try {
+                wallets.splice(idxWallet)
+                this.setState({ wallets: wallets })
+                this.setState({ selectedWallet: wallets[0] })
+              } catch (e) {
+                alert(e)
+              }
+            }}
           />
         )
       }

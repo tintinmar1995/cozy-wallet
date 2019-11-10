@@ -16,10 +16,9 @@ export class ListOfWallets extends Component {
 
   newWallet = async () => {
     const { client } = this.props
-    const { filesId } = this.state
 
     // Create dummy file
-    const response = await client.stackClient
+    await client.stackClient
       .fetchJSON(
         'POST',
         '/files/' +
@@ -29,21 +28,21 @@ export class ListOfWallets extends Component {
           '.csv',
         '_id,store,note,cardid,headercolor,headertextcolor,barcodetype\r\n1,Exemple,This is a note,2070253157477,-5414233,-1,EAN_13\r\n'
       )
+      .then(response => {
+        const { wallets } = this.state
+
+        wallets.push({
+          label: this.state.newWalletName,
+          value: response.data.id
+        })
+        this.setState({
+          wallets: wallets,
+          newWalletName: ''
+        })
+      })
       .catch(error => {
         alert(error)
       })
-
-    filesId.push({
-      type: 'io.cozy.files',
-      id: response.data.id,
-      fake: 'news'
-    })
-
-    this.setState({
-      creatingWallet: false,
-      filesId: filesId,
-      newWalletName: ''
-    })
   }
 
   loadWalletsId = async () => {
@@ -111,6 +110,7 @@ export class ListOfWallets extends Component {
         <div style={{ background: 'white', width: '80%' }}>
           <Input
             fullwidth
+            value={this.state.newWalletName}
             onChange={event => {
               this.setState({ newWalletName: event.target.value })
             }}

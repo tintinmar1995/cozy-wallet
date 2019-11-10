@@ -145,12 +145,13 @@ export class Wallet extends Component {
             const { client, id } = this.props
             client.stackClient
               .fetchJSON('DELETE', '/files/' + id)
+              .then(this.props.onDelete)
               .catch(error => {
                 alert(error)
               })
           }}
         >
-          Delete
+          Delete this empty wallet
         </Button>
       )
     }
