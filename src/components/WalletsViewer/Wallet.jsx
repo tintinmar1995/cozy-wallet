@@ -2,9 +2,7 @@ import React, { Component } from 'react'
 import Papa from 'papaparse'
 import Card from './Card'
 import Button from 'cozy-ui/transpiled/react/MuiCozyTheme/Buttons'
-import ExpansionPanel from '@material-ui/core/ExpansionPanel'
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails'
+import Spinner from 'cozy-ui/transpiled/react/Spinner'
 
 import { withClient } from 'cozy-client'
 
@@ -22,12 +20,12 @@ function compare(a, b) {
 export class Wallet extends Component {
   constructor(props, context) {
     super(props, context)
-    // initial component state
+
     this.state = {
-      boolLoading: true,
       csvFile: '',
-      name: '',
+      isLoading: true,
       isEmpty: false,
+      disabled: this.props.disabled,
       data: []
     }
 
@@ -37,17 +35,6 @@ export class Wallet extends Component {
   // load cards from csv file
   loadCards = async () => {
     const { client, id } = this.props
-
-    // Get Wallet's name
-    await client.stackClient
-      .fetchJSON('GET', '/files/' + id)
-      .then(async response => {
-        try {
-          this.setState({ name: response.data.attributes.name })
-        } catch (err) {
-          alert(err)
-        }
-      })
 
     // Get the cards
     await client.stackClient
@@ -69,14 +56,36 @@ export class Wallet extends Component {
     var data = result.data
     this.setState({
       data: data,
+      isLoading: false,
       isEmpty: data.length == 0 || (data.length == 1 && !data[0].store)
     })
+  }
+
+  componentWillReceiveProps(nextProps) {
+    // You don't have to do this check first, but it can help prevent an unneeded render
+    if (nextProps.disabled !== this.state.disabled) {
+      this.setState({ disabled: nextProps.disabled })
+    }
   }
 
   render() {
     const { data, isEmpty } = this.state
 
-    if (!isEmpty) {
+    if (!this.props.name || this.props.name == '' || this.state.disabled) {
+      return null
+    } else if (this.state.isLoading) {
+      return (
+        <div
+          style={{
+            margin: 'auto',
+            width: '50%',
+            padding: '10px'
+          }}
+        >
+          <Spinner size="xxlarge" />
+        </div>
+      )
+    } else if (!isEmpty) {
       // Sort card by store
       data.sort(compare)
 
@@ -91,6 +100,10 @@ export class Wallet extends Component {
 
               // Deleting the card from the array of card
               this.state.data.splice(i, 1)
+              this.setState({
+                isEmpty:
+                  data.length == 0 || (data.length == 1 && !data[0].store)
+              })
               // Converting the array to a CSV file
               var newFile = Papa.unparse(this.state.data)
               // Clean card and prevent from empty lines
@@ -115,44 +128,31 @@ export class Wallet extends Component {
                 res: res
               })
             }}
+            availableConnectors={this.props.availableConnectors}
+            installedConnectors={this.props.installedConnectors}
           />
         )
       }
-      return (
-        <ExpansionPanel style={{ marginRight: '50px' }}>
-          <ExpansionPanelSummary>
-            {this.state.name.replace('.csv', '')}
-          </ExpansionPanelSummary>
-          <ExpansionPanelDetails>
-            <div>{out}</div>
-          </ExpansionPanelDetails>
-        </ExpansionPanel>
-      )
+      return <div>{out}</div>
     } else {
       return (
-        <ExpansionPanel style={{ marginRight: '50px' }}>
-          <ExpansionPanelSummary>
-            {this.state.name.replace('.csv', '')}
-          </ExpansionPanelSummary>
-          <ExpansionPanelDetails>
-            <Button
-              variant="contained"
-              className="u-m-1"
-              icon="trash"
-              theme="danger"
-              onClick={() => {
-                const { client, id } = this.props
-                client.stackClient
-                  .fetchJSON('DELETE', '/files/' + id)
-                  .catch(error => {
-                    alert(error)
-                  })
-              }}
-            >
-              Delete
-            </Button>
-          </ExpansionPanelDetails>
-        </ExpansionPanel>
+        <Button
+          variant="contained"
+          className="u-m-1"
+          icon="trash"
+          theme="danger"
+          onClick={() => {
+            const { client, id } = this.props
+            client.stackClient
+              .fetchJSON('DELETE', '/files/' + id)
+              .then(this.props.onDelete)
+              .catch(error => {
+                alert(error)
+              })
+          }}
+        >
+          Delete this empty wallet
+        </Button>
       )
     }
   }

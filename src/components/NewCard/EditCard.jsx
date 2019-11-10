@@ -50,24 +50,31 @@ export class EditCard extends Component {
           '/files/download/' + this.state.selectedWallets[index].value
         )
         .then(response => {
-          var newLine = templateNewLine
-            .replace('[**ID**]', response.split('\n').length)
-            .replace('[**NOTE**]', this.state.note)
-            .replace('[**STORE**]', this.state.store)
-            .replace('[**CARDID**]', this.state.cardid)
-            .replace('[**TYPE**]', this.state.barcodetype)
-          return response + newLine
+          return response
         })
         .catch(error => {
           alert(error)
         })
 
+      if (newFile == '_id\r\n') {
+        newFile =
+          '_id,store,note,cardid,headercolor,headertextcolor,barcodetype\r\n'
+      }
+
+      // Add the new line
       // Clean the file to prevent from empty lines
-      newFile = newFile
-        .split(',,,,,,\r\n')
-        .join('')
-        .split(',,,,,,')
-        .join('')
+      newFile =
+        newFile +
+        templateNewLine
+          .replace('[**ID**]', newFile.split('\n').length)
+          .replace('[**NOTE**]', this.state.note)
+          .replace('[**STORE**]', this.state.store)
+          .replace('[**CARDID**]', this.state.cardid)
+          .replace('[**TYPE**]', this.state.barcodetype)
+          .split(',,,,,,\r\n')
+          .join('')
+          .split(',,,,,,')
+          .join('')
 
       // Update the file in Cozy's VFS
       res = await client.stackClient
@@ -146,14 +153,34 @@ export class EditCard extends Component {
   render() {
     return (
       <form>
-        <Button
-          busy={this.state.busy}
-          type="button"
-          onClick={this.addCard}
-          label="Save"
-          size="large"
-          extension="narrow"
-        />
+        <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
+          <div style={{ background: 'white', width: '80%' }}>
+            <SelectBox
+              isMulti
+              fullwidth
+              onChange={event => {
+                this.setState({ selectedWallets: event })
+              }}
+              components={{
+                Option: CheckboxOption
+              }}
+              placeholder="Select one or several wallet(s)..."
+              options={this.state.wallets}
+            />
+          </div>
+          <div>
+            <Button
+              busy={this.state.busy}
+              type="button"
+              theme="highlight"
+              onClick={this.addCard}
+              label="Save"
+              icon="credit-card-add"
+              size="large"
+              extension="narrow"
+            />
+          </div>
+        </div>
         <div>
           <Label htmlFor="name">Name</Label>
           <Input
@@ -242,20 +269,6 @@ export class EditCard extends Component {
                 label: 'UPC_E'
               }
             ]}
-          />
-        </div>
-        <div style={{ background: 'white' }}>
-          <Label htmlFor="wallet">Save in wallets</Label>
-          <SelectBox
-            id="wallet"
-            isMulti
-            onChange={event => {
-              this.setState({ selectedWallets: event })
-            }}
-            components={{
-              Option: CheckboxOption
-            }}
-            options={this.state.wallets}
           />
         </div>
         <br />

@@ -1,6 +1,7 @@
 {
   "Nav": {
-    "wallet": "My wallets",
-    "add_card": "Add card"
+    "card": "My cards",
+        "wallet": "My wallets",
+    "add_card": "New card"
   }
 }

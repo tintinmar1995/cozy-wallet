@@ -2,9 +2,7 @@ import React, { Component } from 'react'
 import Wallet from './Wallet'
 
 import { withClient } from 'cozy-client'
-import MuiCozyTheme from 'cozy-ui/transpiled/react/MuiCozyTheme'
-import Button from 'cozy-ui/transpiled/react/Button'
-import Input from 'cozy-ui/transpiled/react/Input'
+import SelectBox from 'cozy-ui/transpiled/react/SelectBox'
 import Empty from 'cozy-ui/react/Empty'
 
 export class MyWallets extends Component {
@@ -12,15 +10,17 @@ export class MyWallets extends Component {
     super(props, context)
     this.state = {
       dirId: '',
-      filesId: [],
-      creatingWallet: false,
-      newWalletName: ''
+      wallets: [],
+      selectedWallet: {},
+      availableConnectors: [],
+      installedConnectors: []
     }
   }
 
   loadWalletsId = async () => {
     var ids = { dirId: '', filesId: [] }
     const { client } = this.props
+    var selectedWallet = {}
 
     // Get the id of the folder "My Wallets", and the content's id
     try {
@@ -44,120 +44,161 @@ export class MyWallets extends Component {
         })
     }
 
-    this.setState({ dirId: ids.dirId, filesId: ids.filesId })
+    var wallets = []
+    var name = ''
+    for (var idxFiles = 0; idxFiles < ids.filesId.length; idxFiles++) {
+      // Get Wallet's name
+      name = await client.stackClient
+        .fetchJSON('GET', '/files/' + ids.filesId[idxFiles].id)
+        .then(response => {
+          return response.data.attributes.name
+        })
+        .catch(e => {
+          alert(e)
+        })
+
+      wallets.push({
+        value: ids.filesId[idxFiles].id,
+        label: name.replace('.csv', '')
+      })
+    }
+
+    if (wallets.length != 0) {
+      selectedWallet = wallets[0]
+    }
+
+    this.setState({
+      dirId: ids.dirId,
+      wallets: wallets,
+      selectedWallet: selectedWallet
+    })
   }
 
-  newWallet = async () => {
+  loadConnectors = async () => {
     const { client } = this.props
-    const { filesId } = this.state
 
-    // Create dummy file
-    const response = await client.stackClient
-      .fetchJSON(
-        'POST',
-        '/files/' +
-          this.state.dirId +
-          '?Type=file&Name=' +
-          this.state.newWalletName +
-          '.csv',
-        '_id,store,note,cardid,headercolor,headertextcolor,barcodetype\r\n1,Exemple,This is a note,2070253157477,-5414233,-1,EAN_13\r\n'
-      )
+    // get connectors
+
+    const availableConnectors = await client.stackClient
+      .fetchJSON('GET', '/registry?filter[type]=konnector')
+      .then(response => {
+        var availableConnectors = []
+        for (var i = 0; i < response.data.length; i++) {
+          try {
+            availableConnectors.push({
+              name: {
+                label: response.data[i].latest_version.manifest.name,
+                value: response.data[i].latest_version.manifest.name
+              },
+              slug: {
+                label: response.data[i].slug,
+                value: response.data[i].slug
+              }
+            })
+          } catch (e) {
+            console.log(JSON.stringify(response.data[i]))
+          }
+        }
+        return availableConnectors
+      })
+
+    // get installed connectors
+    const installedConnectors = await client.stackClient
+      .fetchJSON('GET', '/konnectors/')
+      .then(response => {
+        return response.data
+      })
       .catch(error => {
         alert(error)
       })
 
-    filesId.push({
-      type: 'io.cozy.files',
-      id: response.data.id,
-      fake: 'news'
-    })
-
     this.setState({
-      creatingWallet: false,
-      filesId: filesId,
-      newWalletName: ''
+      availableConnectors: availableConnectors,
+      installedConnectors: installedConnectors
     })
   }
 
   render() {
     var out = []
-    const { creatingWallet } = this.state
 
     out.push(
       <div style={{ margin: '20px' }}>
         <form>
-          <Button
-            theme="secondary"
-            type="button"
-            onClick={() => {
-              this.setState({ creatingWallet: !this.state.creatingWallet })
+          <SelectBox
+            options={this.state.wallets}
+            value={this.state.selectedWallet}
+            onChange={event => {
+              this.setState({ selectedWallet: event })
             }}
-            busy={creatingWallet}
-            label="New wallet"
-            size="large"
+            fullwidth
+            placeholder="Open a wallet..."
           />
-          {creatingWallet && (
-            <Input
-              placeholder="Enter the name of your new wallet"
-              value={this.state.newWalletName}
-              onChange={event => {
-                this.setState({ newWalletName: event.target.value })
-              }}
-            />
-          )}
-          {creatingWallet && (
-            <Button
-              theme="secondary"
-              label="Create"
-              onClick={this.newWallet}
-              type="button"
-              size="large"
-            />
-          )}
-          {creatingWallet && (
-            <Button
-              iconOnly
-              type="button"
-              theme="secondary"
-              onClick={() => {
-                this.setState({ creatingWallet: !this.state.creatingWallet })
-              }}
-              label="Cancel"
-              icon="cross"
-              extension="narrow"
-              size="large"
-            />
-          )}
         </form>
       </div>
     )
 
-    // For each wallet, add it to the page
-    for (var index = 0; index < this.state.filesId.length; index++) {
-      out.push(
-        <MuiCozyTheme>
-          <Wallet id={this.state.filesId[index].id} />
-        </MuiCozyTheme>
-      )
-    }
-
-    if (this.state.filesId.length == 0) {
+    if (this.state.wallets.length == 0) {
       out.push(
         <div
           style={{
             position: 'relative',
             transform: 'translateZ(0)',
-            height: '500px',
+            height: '300px',
             display: 'flex'
           }}
         >
           <Empty
             icon="cozy"
-            title="This list is empty"
-            text="Try adding some content to this list"
+            title="You have no wallet"
+            text="Try adding some wallet"
           />
         </div>
       )
+    } else if (!this.state.selectedWallet.label) {
+      out.push(
+        <div
+          style={{
+            position: 'relative',
+            transform: 'translateZ(0)',
+            height: '300px',
+            display: 'flex'
+          }}
+        >
+          <Empty
+            icon="cozy"
+            title="No wallet selected"
+            text="Please select a wallet"
+          />
+        </div>
+      )
+    } else {
+      for (
+        var idxWallet = 0;
+        idxWallet < this.state.wallets.length;
+        idxWallet++
+      ) {
+        out.push(
+          <Wallet
+            disabled={
+              this.state.wallets[idxWallet] != this.state.selectedWallet
+            }
+            id={this.state.wallets[idxWallet].value}
+            name={this.state.wallets[idxWallet].label}
+            availableConnectors={this.state.availableConnectors}
+            installedConnectors={this.state.installedConnectors}
+            onDelete={() => {
+              var { wallets } = this.state
+              try {
+                wallets.splice(idxWallet)
+                this.setState({ wallets: wallets })
+                this.setState({ selectedWallet: wallets[0] })
+              } catch (e) {
+                alert(e)
+              }
+            }}
+          />
+        )
+      }
     }
 
     return <div>{out}</div>
@@ -165,6 +206,7 @@ export class MyWallets extends Component {
 
   componentDidMount() {
     this.loadWalletsId()
+    this.loadConnectors()
   }
 }
 
