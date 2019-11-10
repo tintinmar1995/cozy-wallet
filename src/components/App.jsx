@@ -6,6 +6,7 @@ import { Sprite as IconSprite } from 'cozy-ui/react/Icon'
 
 import Sidebar from './Sidebar'
 import WalletsViewer from './WalletsViewer'
+import ManageWallets from './ManageWallets'
 import NewCard from './NewCard'
 
 export const App = () => (
@@ -15,10 +16,11 @@ export const App = () => (
       <Main>
         <Content className="app-content">
           <Switch>
-            <Route path="/wallet" component={WalletsViewer} />
+            <Route path="/card" component={WalletsViewer} />
+            <Route path="/wallet" component={ManageWallets} />
             <Route path="/add" component={NewCard} />
-            <Redirect from="/" to="/wallet" />
-            <Redirect from="*" to="/wallet" />
+            <Redirect from="/" to="/card" />
+            <Redirect from="*" to="/card" />
           </Switch>
         </Content>
       </Main>

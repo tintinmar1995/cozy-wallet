@@ -153,14 +153,34 @@ export class EditCard extends Component {
   render() {
     return (
       <form>
-        <Button
-          busy={this.state.busy}
-          type="button"
-          onClick={this.addCard}
-          label="Save"
-          size="large"
-          extension="narrow"
-        />
+        <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
+          <div style={{ background: 'white', width: '80%' }}>
+            <SelectBox
+              isMulti
+              fullwidth
+              onChange={event => {
+                this.setState({ selectedWallets: event })
+              }}
+              components={{
+                Option: CheckboxOption
+              }}
+              placeholder="Select one or several wallet(s)..."
+              options={this.state.wallets}
+            />
+          </div>
+          <div>
+            <Button
+              busy={this.state.busy}
+              type="button"
+              theme="highlight"
+              onClick={this.addCard}
+              label="Save"
+              icon="wallet"
+              size="large"
+              extension="narrow"
+            />
+          </div>
+        </div>
         <div>
           <Label htmlFor="name">Name</Label>
           <Input
@@ -249,20 +269,6 @@ export class EditCard extends Component {
                 label: 'UPC_E'
               }
             ]}
-          />
-        </div>
-        <div style={{ background: 'white' }}>
-          <Label htmlFor="wallet">Save in wallets</Label>
-          <SelectBox
-            id="wallet"
-            isMulti
-            onChange={event => {
-              this.setState({ selectedWallets: event })
-            }}
-            components={{
-              Option: CheckboxOption
-            }}
-            options={this.state.wallets}
           />
         </div>
         <br />
