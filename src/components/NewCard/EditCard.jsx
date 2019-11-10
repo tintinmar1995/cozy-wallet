@@ -175,7 +175,7 @@ export class EditCard extends Component {
               theme="highlight"
               onClick={this.addCard}
               label="Save"
-              icon="wallet"
+              icon="credit-card-add"
               size="large"
               extension="narrow"
             />

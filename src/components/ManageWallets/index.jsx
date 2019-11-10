@@ -1,13 +1,11 @@
 import React from 'react'
 
-import EditWallets from './EditWallets'
+import ListOfWallets from './ListOfWallets'
 
 export const ManageWallets = () => {
   return (
     <div>
-      <h1>
-        <EditWallets />
-      </h1>
+      <ListOfWallets />
     </div>
   )
 }
