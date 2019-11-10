@@ -4,16 +4,17 @@ import { Button } from 'cozy-ui/react/Button'
 import Avatar from 'cozy-ui/react/Avatar'
 import Barcode from 'react-barcode'
 import KonnectorChecker from './KonnectorChecker'
+import CompositeRow from 'cozy-ui/react/CompositeRow'
 
 export class Card extends Component {
   constructor(props, context) {
     super(props, context)
-    this.state = { boolModal: false }
+    this.state = { boolModal: false, cancelling: false, deletion: false }
   }
 
   render() {
     const { card } = this.props
-    const { boolModal } = this.state
+    const { boolModal, cancelling } = this.state
 
     // Prevent the app from printing an empty card
     if (!card.store) {
@@ -39,80 +40,102 @@ export class Card extends Component {
                   format={card.barcodetype.replace('_', '')}
                 />
               </center>
-              <h4>{card.note}</h4>
-              <br />
-              <br />
-              <div>
-                <Button
-                  icon="trash"
-                  busy={this.state.cancelling}
-                  type="button"
-                  theme="danger"
-                  onClick={() => {
-                    this.setState({ cancelling: !this.state.cancelling })
-                  }}
-                  size="tiny"
-                  label="Delete"
-                />
-                {this.state.cancelling && (
-                  <Button
-                    type="button"
-                    theme="danger"
-                    size="tiny"
-                    label="Confirm"
-                    onClick={() => {
-                      this.setState({ boolModal: false })
-                      this.props.onClick(this.props.id)
-                    }}
-                  />
-                )}
-                {this.state.cancelling && (
-                  <Button
-                    icon="cross"
-                    type="button"
-                    theme="secondary"
-                    size="tiny"
-                    onClick={() => {
-                      this.setState({ cancelling: !this.state.cancelling })
-                    }}
-                    label="Cancel"
-                  />
-                )}
-              </div>
             </ModalContent>
           </Modal>
         </div>
       )
     }
 
-    // TODO: Use CompositeRow from cozy-ui
-    // TODO: Put Edit option and Delete in Dots menu at the left of the row
-    // TODO: Edit option create a form Composite button and replace Dots by Save
+    if (cancelling) {
+      out.push(
+        <div>
+          <Modal
+            title="Are you sure, you want to delete this card ?"
+            secondaryAction={() => {
+              this.setState({ cancelling: false })
+            }}
+          >
+            <ModalContent>
+              <Button
+                type="button"
+                busy={this.state.deletion}
+                theme="danger"
+                label="Confirm"
+                onClick={() => {
+                  this.setState({
+                    cancelling: !this.state.cancelling,
+                    deletion: true
+                  })
+                  this.props.onClick(this.props.id)
+                }}
+              />
+              <Button
+                icon="cross"
+                type="button"
+                theme="secondary"
+                onClick={() => {
+                  this.setState({ cancelling: !this.state.cancelling })
+                }}
+                label="Cancel"
+              />
+            </ModalContent>
+          </Modal>
+        </div>
+      )
+    }
+
     // In the main tab, cards are shown as an Avatar and a button to open a modal
     out.push(
-      <div style={{ margin: '10px', display: 'flex', flexDirection: 'row' }}>
-        <Avatar
-          text={(str => {
-            if (str) {
-              return str.substring(0, 1)
-            }
-          })(card.store)}
-          style={{ marginRight: '10px' }}
-        />
-        <Button
-          onClick={() => this.setState({ boolModal: true })}
-          label={card.store}
-          size="large"
-          theme="ghost"
-          extension="narrow"
-        />
-        <KonnectorChecker
-          brand={card.store}
-          availableConnectors={this.props.availableConnectors}
-          installedConnectors={this.props.installedConnectors}
+      <div style={{ margin: '15px' }}>
+        <CompositeRow
+          primaryText={card.store}
+          secondaryText={card.note}
+          image={
+            <Avatar
+              text={(str => {
+                if (str) {
+                  return str.substring(0, 1)
+                }
+              })(card.store)}
+              style={{ marginRight: '10px' }}
+            />
+          }
+          right={
+            <div>
+              <Button
+                label="See barcode"
+                theme="ghost"
+                onClick={() => {
+                  this.setState({ boolModal: true })
+                }}
+              />
+              <Button
+                iconOnly
+                extension="narrow"
+                icon="trash"
+                theme="danger"
+                onClick={() => {
+                  this.setState({ cancelling: true })
+                }}
+              />
+            </div>
+          }
+          actions={
+            <KonnectorChecker
+              brand={card.store}
+              availableConnectors={this.props.availableConnectors}
+              installedConnectors={this.props.installedConnectors}
+            />
+          }
+          dense={false}
+          style={{
+            boxShadow: '0 0 10px rgba(0, 0, 0, 0.15)',
+            boxSizing: 'border-box'
+          }}
         />
       </div>
     )
+
     return out
   }
 }

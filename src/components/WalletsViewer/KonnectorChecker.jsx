@@ -1,15 +1,30 @@
 import React, { Component } from 'react'
-import Chip from 'cozy-ui/react/Chip'
-import Icon from 'cozy-ui/react/Icon'
+import UIChip from 'cozy-ui/react/Chip'
+import { Bd } from 'cozy-ui/react/Media'
 
 import { minDistToLabel } from './levenshteinDistance.js'
+
+const Chip = React.memo(({ children, ...props }) => (
+  <UIChip
+    variant="outlined"
+    className="u-mr-0 u-mb-0"
+    size="small"
+    children={children}
+    {...props}
+  />
+))
+
+const ChipImage = React.memo(({ src }) => (
+  <img className="u-mr-half" src={src} height="50%" />
+))
 
 export class KonnectorChecker extends Component {
   constructor(props, context) {
     super(props, context)
     this.state = {
       matchingConnector: [],
-      isConnectorInstalled: false
+      isConnectorInstalled: false,
+      checkDone: false
     }
   }
 
@@ -37,57 +52,69 @@ export class KonnectorChecker extends Component {
             minDistToLabel(connector[iWordKntr], label) /
             connector[iWordKntr].length
           if (minDist <= 0.3) {
-            matchingConnector.push({ label: connector.join(' ') })
+            matchingConnector.push(availableConnectors[kntr])
           }
           iWordKntr++
         }
 
         kntr++
       }
-    }
 
-    // For each connector that match, check if installed
-    // TODO: Adapt this part to the real response
-    if (installedConnectors.length != 0) {
-      for (var i = 0; i < matchingConnector.length; i) {
-        isConnectorInstalled = installedConnectors.includes(
-          matchingConnector[i]
-        )
+      // For each connector that match, check if installed
+      // TODO: Adapt this part to the real response
+      if (installedConnectors.length != 0) {
+        for (var i = 0; i < matchingConnector.length; i) {
+          isConnectorInstalled = installedConnectors.includes(
+            matchingConnector[i]
+          )
+        }
       }
-    }
 
-    // Prevent from infinite loop
-    if (
-      matchingConnector != this.state.matchingConnector ||
-      isConnectorInstalled != this.state.isConnectorInstalled
-    ) {
-      this.setState({
-        matchingConnector: matchingConnector,
-        isConnectorInstalled: isConnectorInstalled
-      })
+      // Prevent from infinite loop
+      if (
+        matchingConnector != this.state.matchingConnector ||
+        isConnectorInstalled != this.state.isConnectorInstalled
+      ) {
+        this.setState({
+          matchingConnector: matchingConnector,
+          isConnectorInstalled: isConnectorInstalled,
+          checkDone: true
+        })
+      }
     }
   }
 
   render() {
     const { matchingConnector, isConnectorInstalled } = this.state
 
-    this.checkForConnector()
+    if (!this.state.checkDone) {
+      this.checkForConnector()
+    }
 
     if (matchingConnector.length != 0 && !isConnectorInstalled) {
       return (
         <div>
-          <Chip>
-            <Icon icon="connector" style={{ marginRight: '0.5rem' }} />
-            Connector available
-          </Chip>
+          <Bd className="u-row-xs">
+            <Chip>
+              <ChipImage
+                src={'registry/' + matchingConnector[0].slug.label + '/icon'}
+              />
+              Connector available
+            </Chip>
+          </Bd>
         </div>
       )
     } else if (matchingConnector.length != 0 && isConnectorInstalled) {
       return (
         <div>
-          <Chip.Round>
-            <Icon icon="check-circle" style={{ color: 'blue' }} />
-          </Chip.Round>
+          <Bd className="u-row-xs">
+            <Chip>
+              <ChipImage
+                src={'registry/' + matchingConnector[0].slug.label + '/icon'}
+              />{' '}
+              Connected
+            </Chip>
+          </Bd>
         </div>
       )
     } else {
