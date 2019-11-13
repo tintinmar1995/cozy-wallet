@@ -28,12 +28,24 @@ export class KonnectorChecker extends Component {
     }
   }
 
+  checkIfConnectorInstalled(connector) {
+    const { installedConnectors } = this.props
+    var kntr = 0
+    while (kntr < installedConnectors.length) {
+      if (installedConnectors[kntr].attributes.slug == connector.slug.label) {
+        return true
+      } else {
+        kntr++
+      }
+    }
+    return false
+  }
+
   checkForConnector = async () => {
     const { availableConnectors, installedConnectors } = this.props
     const label = this.props.brand.toLowerCase()
     var connector = []
     var matchingConnector = []
-    var isConnectorInstalled = false
 
     if (availableConnectors.length != 0) {
       // For each connector available
@@ -64,20 +76,16 @@ export class KonnectorChecker extends Component {
       // TODO: Adapt this part to the real response
       if (installedConnectors.length != 0) {
         for (var i = 0; i < matchingConnector.length; i) {
-          isConnectorInstalled = installedConnectors.includes(
+          matchingConnector.isConnectorInstalled = this.checkIfConnectorInstalled(
             matchingConnector[i]
           )
         }
       }
 
       // Prevent from infinite loop
-      if (
-        matchingConnector != this.state.matchingConnector ||
-        isConnectorInstalled != this.state.isConnectorInstalled
-      ) {
+      if (matchingConnector != this.state.matchingConnector) {
         this.setState({
           matchingConnector: matchingConnector,
-          isConnectorInstalled: isConnectorInstalled,
           checkDone: true
         })
       }
@@ -91,35 +99,32 @@ export class KonnectorChecker extends Component {
       this.checkForConnector()
     }
 
-    if (matchingConnector.length != 0 && !isConnectorInstalled) {
-      return (
-        <div>
-          <Bd className="u-row-xs">
-            <Chip>
-              <ChipImage
-                src={'registry/' + matchingConnector[0].slug.label + '/icon'}
-              />
-              Connector available
-            </Chip>
-          </Bd>
-        </div>
-      )
-    } else if (matchingConnector.length != 0 && isConnectorInstalled) {
-      return (
-        <div>
-          <Bd className="u-row-xs">
-            <Chip>
-              <ChipImage
-                src={'registry/' + matchingConnector[0].slug.label + '/icon'}
-              />{' '}
-              Connected
-            </Chip>
-          </Bd>
-        </div>
-      )
-    } else {
+    if (matchingConnector.length == 0) {
       return null
     }
+
+    var out = []
+    for (var idx = 0; idx < matchingConnector.length; idx++) {
+      out.push(
+        <div style={{ marginRight: '5px' }}>
+          <Bd className="u-row-xs">
+            <Chip>
+              <ChipImage
+                src={'registry/' + matchingConnector[idx].slug.label + '/icon'}
+              />
+              {(!matchingConnector[idx].isConnectorInstalled &&
+                'Connector available') ||
+                'Connected'}
+            </Chip>
+          </Bd>
+        </div>
+      )
+    }
+    return (
+      <div style={{ display: 'flex', flexDirection: 'horizontally' }}>
+        {out}
+      </div>
+    )
   }
 }
 

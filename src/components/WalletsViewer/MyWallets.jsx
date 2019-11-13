@@ -104,7 +104,7 @@ export class MyWallets extends Component {
 
     // get installed connectors
     const installedConnectors = await client.stackClient
-      .fetchJSON('GET', '/konnectors/')
+      .fetchJSON('GET', '/konnectors/?limit=1000')
       .then(response => {
         return response.data
       })
