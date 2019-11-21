@@ -99,7 +99,7 @@ export class ListOfWallets extends Component {
 
   render() {
     var out = []
-    const { boolEdit, wallets, newValue } = this.state
+    const { wallets } = this.state
 
     if (!this.state.checkDone) {
       this.loadWalletsId()

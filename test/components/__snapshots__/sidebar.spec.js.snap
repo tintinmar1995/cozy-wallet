@@ -14,14 +14,14 @@ exports[`Sidebar component should be rendered correctly 1`] = `
         <NavLink
           activeClassName="is-active"
           className="c-nav-link"
-          to="/todos"
+          to="/card"
         >
           <Icon
             className="c-nav-icon"
-            icon="test-file-stub"
+            icon="credit-card"
             spin={false}
           />
-          Todos
+          My cards
         </NavLink>
       </li>
       <li
@@ -30,14 +30,14 @@ exports[`Sidebar component should be rendered correctly 1`] = `
         <NavLink
           activeClassName="is-active"
           className="c-nav-link"
-          to="/viewhello1"
+          to="/add"
         >
           <Icon
             className="c-nav-icon"
-            icon="test-file-stub"
+            icon="credit-card-add"
             spin={false}
           />
-          Second
+          New card
         </NavLink>
       </li>
       <li
@@ -46,14 +46,14 @@ exports[`Sidebar component should be rendered correctly 1`] = `
         <NavLink
           activeClassName="is-active"
           className="c-nav-link"
-          to="/viewhello2"
+          to="/wallet"
         >
           <Icon
             className="c-nav-icon"
-            icon="test-file-stub"
+            icon="wallet"
             spin={false}
           />
-          Third
+          My wallets
         </NavLink>
       </li>
     </ul>

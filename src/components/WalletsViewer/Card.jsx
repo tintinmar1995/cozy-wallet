@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
-import { Modal, ModalContent } from 'cozy-ui/react'
-import { Button } from 'cozy-ui/react/Button'
-import Avatar from 'cozy-ui/react/Avatar'
 import Barcode from 'react-barcode'
-import KonnectorChecker from './KonnectorChecker'
+import Avatar from 'cozy-ui/react/Avatar'
+import { Button } from 'cozy-ui/react/Button'
 import CompositeRow from 'cozy-ui/react/CompositeRow'
+import Modal, { ModalContent } from 'cozy-ui/transpiled/react/Modal'
+import KonnectorChecker from './KonnectorChecker'
 
 export class Card extends Component {
   constructor(props, context) {
@@ -36,7 +36,6 @@ export class Card extends Component {
               <center>
                 <Barcode
                   value={card.cardid}
-                  height="100%"
                   format={card.barcodetype.replace('_', '')}
                 />
               </center>

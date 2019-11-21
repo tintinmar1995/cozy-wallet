@@ -1,60 +1,44 @@
-language: node_js
-matrix:
-  fast_finish: true
-node_js:
-- '8'
+node-preset: &node # Used internally to share configuration, ignored by travis.
+  language: node_js
+  node_js:
+    - "8"
+  cache:
+    directories:
+      - node_modules
 branches:
   only:
   - master
   # tags
   - /^\d+\.\d+\.\d+(\-beta.\d+)?$/
-env:
-  global:
-  # GITHUB_TOKEN for yarn deploy script
-  # to generate yours : travis encrypt GITHUB_TOKEN=<your_GITHUB_TOKEN> -r tintinmar1995/cozy-wallet --org
-  # REGISTRY_TOKEN for yarn cozyPublish script
-  # to generate yours : travis encrypt REGISTRY_TOKEN=<your_REGISTRY_TOKEN> -r tintinmar1995/cozy-wallet --org
-  # N.B.: the --org option is needed only for public repositories
-cache:
-  yarn: true
-  directories:
-  - node_modules
-before_install:
-- curl -fsSL https://bootstrap.pypa.io/get-pip.py | python - --user
-- travis_retry pip install --user transifex-client==0.12.5
-- install -m0644 .transifexrc.tpl ~/.transifexrc
-- echo "password = $TX_PASSWD" >> ~/.transifexrc
 stages:
-  - prebuild
+  - test
   - build
 jobs:
   include:
-    - name: 'Lint'
-      stage: 'prebuild'
-      script: yarn lint
-    - name: 'Tests'
-      stage: 'prebuild'
-      script: yarn test
-    - name: 'Build app'
-      stage: 'build'
-      before_install:
-        - curl -fsSL https://bootstrap.pypa.io/get-pip.py | python - --user
-        - travis_retry pip install --user transifex-client==0.12.5
-        - install -m0644 .transifexrc.tpl ~/.transifexrc
-        - echo "password = $TX_PASSWD" >> ~/.transifexrc
+    - name: Unit tests
+      stage: test
+      <<: *node
+      script: yarn lint && yarn test
+    - name: Web build
+      stage: build
+      <<: *node
       script: yarn build
       deploy:
         - provider: script
           repo: tintinmar1995/cozy-wallet
           skip-cleanup: true
-          # deploy the build on a build branch and publish to the Cozy registry
-          script: DEPLOY_BRANCH=build && yarn deploy && yarn cozyPublish
+          script: yarn cozyPublish
           on:
             branch: master
         - provider: script
           repo: tintinmar1995/cozy-wallet
           skip-cleanup: true
-          # publish stable or beta versions using Github Releases (git tag)
-          script: DEPLOY_BRANCH=build && yarn cozyPublish
+          script: yarn cozyPublish
           on:
             tags: true
+env:
+  global:
+    # GITHUB_TOKEN
+    - secure: "uoG7FBVOtdvRuT2KEae9Dhdpv4QoTL1Xvnj5XAo06bQBmKeDp2IEgVvh+UBkXOa4zyrlsn03tEfWl8pF3xMqTDstVHAof3kG5VRL6iYxnkNWO5fVB90zZo6Sv/pOH7l5OH3MTtShbLtduRnqjKd7rz8+oOjgd29t2o8e+4/N1o5PD4fsSJRniaqgiOp+gpuyW7VaHh15uqxQFRQ59vb9OxrvZW6uqFOO+ND2CCO1bTsiDM36YqqbOTT/qZ3pQjjmhKC/KHOKLE9tRcYGMhGElB6wjlqUS6F6Qonacn0YuvFm62MFjDWBjOU9InnfWjmWgRgKv7BtBcx+2EwYKOiEy+vjFVDHLRH2IWDLQgaA7fch/MErcEfv3u4jY716ILw6lBCXMYC2FZPczh7LTjGJ1l6aI0gphT1M4H4qAZSF2UIMQNhyYV3TBZqgFDFFG5gY6DsGq5YvSu42XUr9jM2NQw9B0hkwrz2mX7XCU07ENFyn+rcYueV3NzyHKjtl+U1edaYunie0oWHutiFKFMmV667aZ1t3sTU96UUqWs7pJC292ebfLtIXpWdrBe7KPvc42A4kp1te62IkngnNmuQW+xVKKekpeC8SY8rZHq0PDLwV3uDvjt8HH/s5DxIKvIYGxLqSKGuBqXJaXpzSDaPQSSMzmYiQzRkF/SbZ9OIJLAA="
+    # REGISTRY_TOKEN
+    - secure: "lg7cN8QhFbdgkGBvVS11Mt5+zulktneaitWsIUaKxSiwamJUikoJ9FQoJNMoTRN+LdTVjQ0R8WkT0FShLNUcPNgNM6n1sXDXtykr/ICS17teMSOeGW9356SmBCHGNWWcoKko9enCiLhXa9roADPflCpswPYgNrdyZ1VLBC2ph3uyCTU51mlcVzsieoYr1Y75MgK2n0CXMcXp/JSpM11n2Ow7KiWHudJdfPxoOECTHglF8SVbwgcPqpJRyCTPz4aeOWawppgLKsM3H9SDoLFfp/F3nouRQsnr/OjVgNHWJ1VQIUueHDg4Szvu/94DVW/c3gvvPwuw3inSZg6LoWX7Vuerh9vEYtj5cNzsF9Uz270fGfuG4Mgv5E1jt0U2ZTPyvmfSWriWRKB9hoGEks6UJ7Enbsk5W1hWXOlUM7+3CWpfaYiCSDPN59N+3q9Uen8zi8im9YI8y/Noe9m/qtoHodvrOCutjRwgbKKcZvRs5ob2aXAIFOq/mAxM1b2i2FhVrTbxvkWEPYgcan2IVqimgz1l32yaNtecAhwxPImVhfDK9gJn03HgeNIV8dhZt5uXKSXjQlSjP6pWjjZ6wUs6MsydZxlyrS5czePlMQH83krDjm6uzoJ0v37WELrx8xTneuHXbG1kDwpHY5kVM/VmfWYO+WLLKDD+Y1XgoRjAJAY="

@@ -4,26 +4,28 @@ import { Bd } from 'cozy-ui/react/Media'
 
 import { minDistToLabel } from './levenshteinDistance.js'
 
-const Chip = React.memo(({ children, ...props }) => (
-  <UIChip
-    variant="outlined"
-    className="u-mr-0 u-mb-0"
-    size="small"
-    children={children}
-    {...props}
-  />
-))
+const Chip = function Chip({ children, ...props }) {
+  return (
+    <UIChip
+      variant="outlined"
+      className="u-mr-0 u-mb-0"
+      size="small"
+      {...props}
+    >
+      {children}
+    </UIChip>
+  )
+}
 
-const ChipImage = React.memo(({ src }) => (
-  <img className="u-mr-half" src={src} height="50%" />
-))
+const ChipImage = function ChipImage({ src }) {
+  return <img className="u-mr-half" src={src} height="50%" />
+}
 
 export class KonnectorChecker extends Component {
   constructor(props, context) {
     super(props, context)
     this.state = {
       matchingConnector: [],
-      isConnectorInstalled: false,
       checkDone: false
     }
   }
@@ -93,7 +95,7 @@ export class KonnectorChecker extends Component {
   }
 
   render() {
-    const { matchingConnector, isConnectorInstalled } = this.state
+    const { matchingConnector } = this.state
 
     if (!this.state.checkDone) {
       this.checkForConnector()

@@ -22,7 +22,6 @@ export class EditWallet extends Component {
   }
 
   render() {
-    var out = []
     const { boolEdit, newValue, deleting, deleted } = this.state
 
     if (deleted) {
@@ -116,7 +115,7 @@ export class EditWallet extends Component {
               {boolEdit && (
                 <Button
                   label="Save"
-                  onClick={async event => {
+                  onClick={async () => {
                     const { client } = this.props
                     if (this.state.name != this.state.newValue) {
                       await client.stackClient
